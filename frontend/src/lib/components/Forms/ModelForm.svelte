@@ -385,7 +385,7 @@
 				}}>{m.cancel()}</button
 			>
 			<button
-				class="btn variant-filled-primary font-semibold w-full"
+				class="btn preset-filled-primary-500 font-semibold w-full"
 				data-testid="save-button"
 				type="submit">{m.save()}</button
 			>
@@ -399,7 +399,7 @@
 				>
 			{/if}
 			<button
-				class="btn variant-filled-primary font-semibold w-full"
+				class="btn preset-filled-primary-500 font-semibold w-full"
 				data-testid="save-button"
 				type="submit">{m.save()}</button
 			>

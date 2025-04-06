@@ -3,7 +3,7 @@
 
 	import SideBarItem from '$lib/components/SideBar/SideBarItem.svelte';
 	import SideBarCategory from '$lib/components/SideBar/SideBarCategory.svelte';
-	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+	import { Accordion } from '@skeletonlabs/skeleton-svelte';
 	import { page } from '$app/state';
 	import { URL_MODEL_MAP } from '$lib/utils/crud';
 	import { driverInstance } from '$lib/utils/stores';
@@ -65,7 +65,7 @@
 					<svelte:fragment slot="content"><SideBarItem item={item.items} /></svelte:fragment>
 				</AccordionItem>
 			{:else} -->
-			<AccordionItem
+			<Accordion.Item
 				id={item.name.toLowerCase().replace(' ', '-')}
 				on:click={() => lastAccordionItemOpened(item.name)}
 				on:click={handleNavClick}
@@ -77,7 +77,7 @@
 				{#snippet content()}
 								<SideBarItem item={item.items} />
 							{/snippet}
-			</AccordionItem>
+			</Accordion.Item>
 			<!-- {/if} -->
 		{/each}
 	</Accordion>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { formFieldProxy, type SuperForm } from 'sveltekit-superforms';
 	import type { AnyZodObject } from 'zod';
-	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
+	import { Segment } from '@skeletonlabs/skeleton-svelte';
 
 	
 
@@ -51,22 +51,22 @@
 			<li class="flex flex-col justify-between border rounded-xl px-2 pb-2">
 				<p class="font-semibold p-2">{question.text}</p>
 				{#if question.type === 'unique_choice'}
-					<RadioGroup
+					<Segment
 						class="flex-col"
-						active="variant-filled-primary"
-						hover="hover:variant-soft-primary"
+						active="preset-filled-primary-500"
+						hover="hover:preset-tonal-primary"
 					>
 						{#each question.options as option}
-							<RadioItem
+							<Segment.Item
 								class="shadow-md"
 								bind:group={question.answer}
 								name="question"
 								value={option}
 								on:click={() => (question.answer = question.answer === option ? null : option)}
-								>{option}</RadioItem
+								>{option}</Segment.Item
 							>
 						{/each}
-					</RadioGroup>
+					</Segment>
 				{:else if question.type === 'date'}
 					<input
 						type="date"

@@ -32,8 +32,7 @@
 		type ModalComponent,
 		type ModalSettings,
 		type ModalStore
-	} from '@skeletonlabs/skeleton';
-	import { getModalStore } from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 	import CreateModal from '$lib/components/Modals/CreateModal.svelte';
 
 	interface Props {
@@ -228,7 +227,7 @@
 						{/key}
 						<div class="flex flex-row justify-between space-x-4">
 							<button
-								class="btn variant-filled-tertiary font-semibold w-full"
+								class="btn preset-filled-tertiary-500 font-semibold w-full"
 								data-testid="reset-button"
 								type="button"
 								onclick={() => {
@@ -243,7 +242,7 @@
 								}}>{m.cancel()}</button
 							>
 							<button
-								class="btn variant-filled-primary font-semibold w-full"
+								class="btn preset-filled-primary-500 font-semibold w-full"
 								data-testid="save-button"
 								type="submit"
 								onclick={() => {

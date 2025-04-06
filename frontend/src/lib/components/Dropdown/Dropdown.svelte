@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { TreeView, TreeViewItem } from '@skeletonlabs/skeleton';
-
-	interface Props {
+		interface Props {
 		header: string;
 		open?: boolean;
 		icon: string;

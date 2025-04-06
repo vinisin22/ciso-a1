@@ -6,7 +6,7 @@
 	import type { ModelInfo, CacheLock } from '$lib/utils/types';
 	import { m } from '$paraglide/messages';
 	import Checkbox from '$lib/components/Forms/Checkbox.svelte';
-	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
+	import { Accordion } from '@skeletonlabs/skeleton-svelte';
 	interface Props {
 		form: SuperValidated<any>;
 		model: ModelInfo;
@@ -37,7 +37,7 @@
 		disabled={!data.is_enabled}
 	/>
 	{#if data.provider !== 'saml'}
-		<AccordionItem open>
+		<Accordion.Item open>
 			{#snippet summary()}
 						{m.IdPConfiguration()}
 					{/snippet}
@@ -90,10 +90,10 @@
 					{/if}
 				
 					{/snippet}
-		</AccordionItem>
+		</Accordion.Item>
 	{/if}
 	{#if data.provider === 'saml'}
-		<AccordionItem open>
+		<Accordion.Item open>
 			{#snippet summary()}
 						<span class="font-semibold">{m.SAMLIdPConfiguration()}</span>
 					{/snippet}
@@ -149,9 +149,9 @@
 					/>
 				
 					{/snippet}
-		</AccordionItem>
+		</Accordion.Item>
 
-		<AccordionItem open>
+		<Accordion.Item open>
 			{#snippet summary()}
 						<span class="font-semibold">{m.SPConfiguration()}</span>
 					{/snippet}
@@ -168,9 +168,9 @@
 					/>
 				
 					{/snippet}
-		</AccordionItem>
+		</Accordion.Item>
 
-		<AccordionItem
+		<Accordion.Item
 			>{#snippet summary()}
 						<span class="font-semibold">{m.advancedSettings()}</span>
 					{/snippet}
@@ -316,6 +316,6 @@
 					/>
 				
 					{/snippet}
-		</AccordionItem>
+		</Accordion.Item>
 	{/if}
 </Accordion>

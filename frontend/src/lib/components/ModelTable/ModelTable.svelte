@@ -24,11 +24,10 @@
 	import { m } from '$paraglide/messages';
 	import { getLocale } from '$paraglide/runtime';
 	import {
-		popup,
 		type CssClasses,
 		type PopupSettings,
 		type SvelteEvent
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 	import { DataHandler, type State } from '@vincjo/datatables/remote';
 	import { defaults, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
@@ -277,7 +276,7 @@
 		{#if !hideFilters}
 			<button
 				use:popup={popupFilter}
-				class="btn variant-filled-primary self-end relative"
+				class="btn preset-filled-primary-500 self-end relative"
 				id="filters"
 			>
 				<i class="fa-solid fa-filter mr-2"></i>
@@ -363,7 +362,7 @@
 									{@const SvelteComponent_1 = component}
 									<SvelteComponent_1 {meta} cell={value} />
 								{:else}
-									<span class="font-token whitespace-pre-line break-words">
+									<span class="base-font-family whitespace-pre-line break-words">
 										{#if Array.isArray(value)}
 											<ul class="list-disc pl-4 whitespace-normal">
 												{#each value as val}

@@ -2,12 +2,8 @@
 	import type { RiskMatrixJsonDefinition } from '$lib/utils/types';
 	import { formFieldProxy } from 'sveltekit-superforms';
 
-	import { toCamelCase } from '$lib/utils/locales';
 	import { safeTranslate } from '$lib/utils/i18n';
 	import { isDark } from '$lib/utils/helpers';
-
-
-
 
 	interface Props {
 		label?: string | undefined;
@@ -47,15 +43,11 @@
 		return riskMatrix.grid[probabilityValue][impactValue];
 	};
 
-	let riskLevel =
-		$state($probabilityValue >= 0 && $impactValue >= 0
+	let riskLevel = $derived(
+		$probabilityValue >= 0 && $impactValue >= 0
 			? riskMatrix.risk[gridPosition($probabilityValue, $impactValue)!]
-			: undefined);
-
-	let riskLevel =
-		$derived($probabilityValue >= 0 && $impactValue >= 0
-			? riskMatrix.risk[gridPosition($probabilityValue, $impactValue)!]
-			: undefined);
+			: undefined
+	);
 
 	let classesCellText = $derived((backgroundHexColor: string) => {
 		return isDark(backgroundHexColor) ? 'text-white' : '';
@@ -68,7 +60,7 @@
 	{/if}
 	{#if riskLevel}
 		<div
-			class="flex font-medium w-32 justify-center p-2 rounded-token {classesCellText(
+			class="flex font-medium w-32 justify-center p-2 rounded-base {classesCellText(
 				riskLevel.hexcolor
 			)}"
 			style="background-color: {riskLevel.hexcolor}"
@@ -76,7 +68,7 @@
 			{safeTranslate(riskLevel.name)}
 		</div>
 	{:else}
-		<div class="flex font-medium w-32 justify-center p-2 rounded-token bg-gray-300">--</div>
+		<div class="flex font-medium w-32 justify-center p-2 rounded-base bg-gray-300">--</div>
 	{/if}
 	{#if helpText}
 		<p class="text-sm text-gray-500 w-64">{helpText}</p>

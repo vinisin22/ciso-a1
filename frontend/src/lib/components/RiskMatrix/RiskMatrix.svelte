@@ -4,7 +4,7 @@
 
 	import * as m from '../../../paraglide/messages';
 	import type { ComponentType } from 'svelte';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import { isDark } from '$lib/utils/helpers';
 
 

@@ -25,13 +25,6 @@
 	// Stores
 	const toastStore = getToastStore();
 
-	
-
-	
-
-	
-
-	
 	interface Props {
 		// Props
 		position?: 't' | 'b' | 'l' | 'r' | 'tl' | 'tr' | 'bl' | 'br';
@@ -71,7 +64,7 @@
 		buttonAction = 'btn preset-filled',
 		buttonDismiss = 'btn-icon btn-icon-sm preset-filled',
 		buttonDismissLabel = '✕',
-		transitions = !$prefersReducedMotionStore,
+		transitions = true,
 		transitionIn = fly as TransitionIn,
 		transitionInParams = { duration: 250 },
 		transitionOut = fly as TransitionOut,
@@ -158,7 +151,9 @@
 	let classProp = ''; // Replacing $$props.class
 	let classesWrapper = $derived(`${cWrapper} ${cPosition} ${zIndex} ${classProp}`);
 	let classesSnackbar = $derived(`${cSnackbar} ${cAlign} ${padding}`);
-	let classesToast = $derived(`${cToast} ${width} ${color} ${padding} ${spacing} ${rounded} ${shadow}`);
+	let classesToast = $derived(
+		`${cToast} ${width} ${color} ${padding} ${spacing} ${rounded} ${shadow}`
+	);
 	// Filtered Toast Store
 	let filteredToasts = $derived(Array.from($toastStore).slice(0, max));
 
@@ -205,8 +200,7 @@
 						{#if t.action || !t.hideDismiss}
 							<div class="toast-actions {cToastActions}">
 								{#if t.action}
-									<button class={buttonAction} onclick={() => onAction(i)}>{t.action.label}</button
-									>
+									<button class={buttonAction} onclick={() => onAction(i)}>{t.action.label}</button>
 								{/if}
 								{#if !t.hideDismiss}
 									<button

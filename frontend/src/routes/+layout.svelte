@@ -2,20 +2,14 @@
 	import { run } from 'svelte/legacy';
 
 	// Most of the app wide CSS should be put in this file
-	import '../app.postcss';
+	// import '../app.css';
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import { browser } from '$app/environment';
 
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
-
-	// Initializing stores prevents known security issues with SvelteKit SSR
-	// https://github.com/skeletonlabs/skeleton/wiki/SvelteKit-SSR-Warning
-	initializeStores();
 
 	import Toast from '$lib/components/Toast/Toast.svelte';
 	import Modal from '$lib/components/Modals/Modal.svelte';
-	import type { ModalComponent, ToastSettings } from '@skeletonlabs/skeleton-svelte';
 	import { clientSideToast } from '$lib/utils/stores';
 
 	import { getFlash } from 'sveltekit-flash-message';

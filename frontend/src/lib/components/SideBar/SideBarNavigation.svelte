@@ -4,11 +4,11 @@
 	import SideBarItem from '$lib/components/SideBar/SideBarItem.svelte';
 	import SideBarCategory from '$lib/components/SideBar/SideBarCategory.svelte';
 	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { URL_MODEL_MAP } from '$lib/utils/crud';
 	import { driverInstance } from '$lib/utils/stores';
 
-	const user = $page.data.user;
+	const user = page.data.user;
 
 	const items = navData.items
 		.map((item) => {
@@ -71,8 +71,12 @@
 				on:click={handleNavClick}
 				open={$lastAccordionItem === item.name}
 			>
-				<svelte:fragment slot="summary"><SideBarCategory {item} /></svelte:fragment>
-				<svelte:fragment slot="content"><SideBarItem item={item.items} /></svelte:fragment>
+				{#snippet summary()}
+								<SideBarCategory {item} />
+							{/snippet}
+				{#snippet content()}
+								<SideBarItem item={item.items} />
+							{/snippet}
 			</AccordionItem>
 			<!-- {/if} -->
 		{/each}

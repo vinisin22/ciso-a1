@@ -1,7 +1,13 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import type { DataHandler } from '@vincjo/datatables/remote';
 	import { m } from '$paraglide/messages';
-	export let handler: DataHandler;
+	interface Props {
+		handler: DataHandler;
+	}
+
+	let { handler }: Props = $props();
 	const rowsPerPage = handler.getRowsPerPage();
 	const rowCount = handler.getRowCount();
 	const options = [5, 10, 20, 50, 100];
@@ -11,9 +17,11 @@
 		handler.invalidate();
 	};
 
-	$: if ($rowsPerPage && $rowCount?.start >= $rowCount?.total) {
-		handler.setPage(Math.ceil($rowCount.total / $rowsPerPage));
-	}
+	run(() => {
+		if ($rowsPerPage && $rowCount?.start >= $rowCount?.total) {
+			handler.setPage(Math.ceil($rowCount.total / $rowsPerPage));
+		}
+	});
 </script>
 
 <aside class="flex items-center">
@@ -21,7 +29,7 @@
 	<select
 		class="select bg-surface-50 w-fit mx-1"
 		bind:value={$rowsPerPage}
-		on:change={setRowsPerPage}
+		onchange={setRowsPerPage}
 	>
 		{#each options as option}
 			<option value={option}>

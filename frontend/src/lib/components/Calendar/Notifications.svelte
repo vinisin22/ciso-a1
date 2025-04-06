@@ -2,7 +2,11 @@
 	import { slide } from 'svelte/transition';
 	import { sineInOut } from 'svelte/easing';
 
-	export let info: any[];
+	interface Props {
+		info: any[];
+	}
+
+	let { info }: Props = $props();
 	const today = new Date();
 
 	function getDates() {
@@ -72,7 +76,7 @@
 				{:else if new Date(date).getDate() == today.getDate() && new Date(date).getMonth() == today.getMonth()}
 					<div class="flex flex-col items-center justify-center">
 						<div class="flex flex-row space-x-2 items-center">
-							<i class="fas fa-calendar-day" />
+							<i class="fas fa-calendar-day"></i>
 							<h4 class="font-semibold underline">{formatDate(date)}</h4>
 						</div>
 						{#each infos as eta}

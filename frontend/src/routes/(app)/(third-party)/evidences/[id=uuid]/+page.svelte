@@ -13,7 +13,11 @@
 	import { z } from 'zod';
 	import { zod } from 'sveltekit-superforms/adapters';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	interface Attachment {
 		type: string;
@@ -21,7 +25,7 @@
 		fileExists: boolean;
 	}
 
-	let attachment: Attachment | undefined = undefined;
+	let attachment: Attachment | undefined = $state(undefined);
 	const modalStore: ModalStore = getModalStore();
 
 	function modalConfirm(id: string, name: string, action: string): void {
@@ -75,14 +79,14 @@
 					href={`./${data.data.id}/attachment`}
 					class="btn variant-filled-primary h-fit"
 					data-testid="attachment-download-button"
-					><i class="fa-solid fa-download mr-2" /> {m.download()}</Anchor
+					><i class="fa-solid fa-download mr-2"></i> {m.download()}</Anchor
 				>
 				<button
-					on:click={(_) => {
+					onclick={(_) => {
 						modalConfirm(data.data.id, data.data.attachment, '?/deleteAttachment');
 					}}
-					on:keydown={(_) => modalConfirm(data.data.id, data.data.attachment, '?/deleteAttachment')}
-					class="btn variant-filled-tertiary h-full"><i class="fa-solid fa-trash" /></button
+					onkeydown={(_) => modalConfirm(data.data.id, data.data.attachment, '?/deleteAttachment')}
+					class="btn variant-filled-tertiary h-full"><i class="fa-solid fa-trash"></i></button
 				>
 			</div>
 		</div>

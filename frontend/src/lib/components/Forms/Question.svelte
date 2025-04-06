@@ -2,19 +2,31 @@
 	import { formFieldProxy, type SuperForm } from 'sveltekit-superforms';
 	import type { AnyZodObject } from 'zod';
 	import { RadioGroup, RadioItem } from '@skeletonlabs/skeleton';
-	let _class = 'w-fit';
 
-	export { _class as class };
-	export let label: string | undefined = undefined;
-	export let field: string;
-	export let helpText: string | undefined = undefined;
+	
 
-	export let form: SuperForm<AnyZodObject>;
+	interface Props {
+		class?: string;
+		label?: string | undefined;
+		field: string;
+		helpText?: string | undefined;
+		form: SuperForm<AnyZodObject>;
+		[key: string]: any
+	}
+
+	let {
+		class: _class = 'w-fit',
+		label = undefined,
+		field,
+		helpText = undefined,
+		form,
+		...rest
+	}: Props = $props();
 
 	const { value, errors, constraints } = formFieldProxy(form, field);
 
-	$: classesTextField = (errors: string[] | undefined) =>
-		errors && errors.length > 0 ? 'input-error' : '';
+	let classesTextField = $derived((errors: string[] | undefined) =>
+		errors && errors.length > 0 ? 'input-error' : '');
 </script>
 
 <div>
@@ -62,7 +74,7 @@
 						class="{'input ' + _class} {classesTextField($errors)}"
 						bind:value={question.answer}
 						{...$constraints}
-						{...$$restProps}
+						{...rest}
 					/>
 				{:else}
 					<input
@@ -71,7 +83,7 @@
 						class="{'input ' + _class} {classesTextField($errors)}"
 						bind:value={question.answer}
 						{...$constraints}
-						{...$$restProps}
+						{...rest}
 					/>
 				{/if}
 			</li>

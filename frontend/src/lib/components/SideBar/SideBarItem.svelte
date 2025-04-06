@@ -3,12 +3,16 @@
 	import { safeTranslate } from '$lib/utils/i18n';
 	import Anchor from '$lib/components/Anchor/Anchor.svelte';
 
-	export let item: any; // TODO: type this
+	interface Props {
+		item: any; // TODO: type this
+	}
 
-	$: classesActive = (href: string) =>
+	let { item }: Props = $props();
+
+	let classesActive = $derived((href: string) =>
 		href === $page.url.pathname
 			? 'bg-primary-100 text-primary-800'
-			: 'hover:bg-primary-50 text-gray-800 ';
+			: 'hover:bg-primary-50 text-gray-800 ');
 </script>
 
 {#each item as item}
@@ -21,7 +25,7 @@
 		data-testid={'accordion-item-' + item.href.substring(1)}
 	>
 		<span class="px-4 flex items-center w-full space-x-2 text-xs" id={item.name}>
-			<i class="{item.fa_icon} w-1/12" />
+			<i class="{item.fa_icon} w-1/12"></i>
 			<span class="text-sm tracking-wide truncate">{safeTranslate(item.name)}</span>
 		</span>
 	</Anchor>

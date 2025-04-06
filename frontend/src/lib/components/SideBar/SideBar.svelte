@@ -21,7 +21,11 @@
 	import './driver-custom.css';
 	import LoadingSpinner from '../utils/LoadingSpinner.svelte';
 
-	export let open: boolean;
+	interface Props {
+		open: boolean;
+	}
+
+	let { open = $bindable() }: Props = $props();
 
 	const user = $page.data?.user;
 
@@ -271,7 +275,7 @@
 		setCookie('show_first_login_modal', 'false');
 	});
 
-	$: classesSidebarOpen = (open: boolean) => (open ? '' : '-ml-[14rem] pointer-events-none');
+	let classesSidebarOpen = $derived((open: boolean) => (open ? '' : '-ml-[14rem] pointer-events-none'));
 </script>
 
 <aside

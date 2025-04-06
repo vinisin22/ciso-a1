@@ -6,7 +6,11 @@
 	import type { PageData } from './$types';
 	import Anchor from '$lib/components/Anchor/Anchor.svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	const REQUIREMENT_ASSESSMENT_STATUS = [
 		'compliant',
@@ -97,12 +101,12 @@
 										}
 									]}
 									class="btn variant-filled-primary w-1/2 lg:w-full"
-									><i class="fa-solid fa-edit mr-2" /> {m.edit()}
+									><i class="fa-solid fa-edit mr-2"></i> {m.edit()}
 								</Anchor>
 								<a
 									href="/compliance-assessments/{compliance_assessment.id}/export"
 									class="btn variant-filled-primary w-1/2 lg:w-full"
-									><i class="fa-solid fa-download mr-2" /> {m.exportButton()}
+									><i class="fa-solid fa-download mr-2"></i> {m.exportButton()}
 								</a>
 							</div>
 						</div>

@@ -40,7 +40,7 @@
 		data: PageData;
 		form: ActionData;
 		actionsBody?: import('svelte').Snippet<[any]>;
-		[key: string]: any
+		[key: string]: any;
 	}
 
 	let { ...props }: Props = $props();
@@ -122,7 +122,7 @@
 		const modalComponent: ModalComponent = {
 			ref: CreateModal,
 			props: {
-				props.form: props.data.evidenceCreateForm,
+				form: props.data.evidenceCreateForm,
 				formAction: '?/createEvidence',
 				model: props.data.evidenceModel,
 				debug: false
@@ -165,12 +165,9 @@
 </script>
 
 <div class="flex flex-col space-y-2">
-	<DetailView {props.data} displayModelTable={false}>
+	<DetailView data={props.data} displayModelTable={false}>
 		{#snippet widgets()}
-				<div
-				
-				class="shadow-xl border-l border-t p-4 rounded bg-gradient-to-tl from-slate-50 to-white"
-			>
+			<div class="shadow-xl border-l border-t p-4 rounded bg-gradient-to-tl from-slate-50 to-white">
 				<!-- new record form -->
 				<h1 class="text-xl font-bold font-serif mb-2">{m.addTimelineEntry()}</h1>
 				<SuperForm
@@ -181,22 +178,19 @@
 					data={timelineForm}
 					{_form}
 					{invalidateAll}
-					
-					
-					
 					validators={zod(schema)}
 					{...props}
 				>
 					{#snippet children({ form, data, initialData })}
-								<AutocompleteSelect
-							{props.form}
+						<AutocompleteSelect
+							form={props.form}
 							optionsEndpoint="incidents"
 							field="incident"
 							label={m.incident()}
 							hidden={initialData.incident}
 						/>
 						<Select
-							{props.form}
+							form={props.form}
 							disableDoubleDash={true}
 							options={model.selectOptions['entry_type']}
 							field="entry_type"
@@ -206,18 +200,18 @@
 							<TextField
 								type="datetime-local"
 								step="1"
-								{props.form}
+								form={props.form}
 								field="timestamp"
 								label={m.timestamp()}
 							/>
 						{/key}
-						<TextField {props.form} field="entry" label={m.entry()} data-focusindex="0" />
-						<TextArea {props.form} field="observation" label={m.observation()} />
+						<TextField form={props.form} field="entry" label={m.entry()} data-focusindex="0" />
+						<TextArea form={props.form} field="observation" label={m.observation()} />
 						{#key refreshKey}
 							<div class="flex items-end justify-center">
 								<div class="w-full mr-2">
 									<AutocompleteSelect
-										{props.form}
+										form={props.form}
 										multiple
 										optionsEndpoint="evidences"
 										field="evidences"
@@ -238,29 +232,29 @@
 								data-testid="reset-button"
 								type="button"
 								onclick={() => {
-								_form.reset();
-								_form.form.update((current) => ({
-									...current,
-									evidences: undefined,
-									timestamp: new Date().toISOString()
-								}));
-								refreshKey = !refreshKey;
-								resetForm = true;
-							}}>{m.cancel()}</button
+									_form.reset();
+									_form.form.update((current) => ({
+										...current,
+										evidences: undefined,
+										timestamp: new Date().toISOString()
+									}));
+									refreshKey = !refreshKey;
+									resetForm = true;
+								}}>{m.cancel()}</button
 							>
 							<button
 								class="btn variant-filled-primary font-semibold w-full"
 								data-testid="save-button"
 								type="submit"
 								onclick={() => {
-								resetForm = true;
-							}}>{m.save()}</button
+									resetForm = true;
+								}}>{m.save()}</button
 							>
 						</div>
-												{/snippet}
-						</SuperForm>
+					{/snippet}
+				</SuperForm>
 			</div>
-			{/snippet}
+		{/snippet}
 	</DetailView>
 
 	<div class="card shadow-lg bg-white p-4 space-y-2">

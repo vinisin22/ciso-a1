@@ -9,13 +9,11 @@
 	let { data, risk_matrices = data.risk_matrices } = $props();
 
 	let risk_matrix_select: Element = $state();
-	let risk_matrix: RiskMatrixJsonDefinition = $derived(risk_matrices[risk_matrix_index] ?? null);
 	let is_business_impact_ignored = $state(false);
 
 	let risk_matrix_index = $state(0);
-	
+	let risk_matrix: RiskMatrixJsonDefinition = $derived(risk_matrices[risk_matrix_index] ?? null);
 
-	let vector: number[] = $state();
 	let vector_string: string = $state();
 	let form_data = $state({
 		threat_agent: [0, 0, 0, 0],
@@ -29,7 +27,9 @@
 	let vulnerability_score = $derived(average(form_data.vulnerability));
 	let technical_impact_score = $derived(average(form_data.technical_impact));
 
-	let impact_score = $derived(is_business_impact_ignored ? technical_impact_score : business_impact_score);
+	let impact_score = $derived(
+		is_business_impact_ignored ? technical_impact_score : business_impact_score
+	);
 	let probability_score = $derived(average([threat_agent_score, vulnerability_score]));
 	let risk_score = $derived(average([impact_score, probability_score]));
 

@@ -41,15 +41,6 @@
 	import Th from './Th.svelte';
 	import { canPerformAction } from '$lib/utils/access-control';
 
-	
-
-
-
-	
-
-
-
-
 	interface Props {
 		// Props
 		source?: TableSource;
@@ -227,7 +218,9 @@
 	for (const field of filteredFields)
 		filterValues[field] = $page.url.searchParams.getAll(field).map((value) => ({ value }));
 
-	let hideFilters = $derived(hideFilters || !Object.entries(filters).some(([_, filter]) => !filter.hide));
+	hideFilters = $derived(
+		hideFilters || !Object.entries(filters).some(([_, filter]) => !filter.hide)
+	);
 
 	run(() => {
 		for (const field of filteredFields) {
@@ -251,22 +244,26 @@
 
 	let field_component_map = $derived(FIELD_COMPONENT_MAP[URLModel] ?? {});
 	let model = $derived(URL_MODEL_MAP[URLModel]);
-	let canCreateObject = $derived(model
-		? $page.params.id
-			? canPerformAction({
-					user,
-					action: 'add',
-					model: model.name,
-					domain:
-						folderId ||
-						$page.data?.data?.folder?.id ||
-						$page.data?.data?.folder ||
-						$page.params.id ||
-						user.root_folder_id
-				})
-			: Object.hasOwn(user.permissions, `add_${model.name}`)
-		: false);
-	let filterCount = $derived(filteredFields.reduce((acc, field) => acc + filterValues[field].length, 0));
+	let canCreateObject = $derived(
+		model
+			? $page.params.id
+				? canPerformAction({
+						user,
+						action: 'add',
+						model: model.name,
+						domain:
+							folderId ||
+							$page.data?.data?.folder?.id ||
+							$page.data?.data?.folder ||
+							$page.params.id ||
+							user.root_folder_id
+					})
+				: Object.hasOwn(user.permissions, `add_${model.name}`)
+			: false
+	);
+	let filterCount = $derived(
+		filteredFields.reduce((acc, field) => acc + filterValues[field].length, 0)
+	);
 
 	let classesHexBackgroundText = $derived((backgroundHexColor: string) => {
 		return isDark(backgroundHexColor) ? 'text-white' : '';
@@ -293,12 +290,12 @@
 				class="card p-2 bg-white max-w-lg shadow-lg space-y-2 border border-surface-200"
 				data-popup="popupFilter"
 			>
-				<SuperForm {_form} validators={zod(z.object({}))} >
+				<SuperForm {_form} validators={zod(z.object({}))}>
 					{#snippet children({ form })}
-										{#each filteredFields as field}
+						{#each filteredFields as field}
 							{#if filters[field]?.component}
 								{@const SvelteComponent = filters[field].component}
-							<SvelteComponent
+								<SvelteComponent
 									{form}
 									{field}
 									{...filters[field].props}
@@ -312,8 +309,8 @@
 								/>
 							{/if}
 						{/each}
-														{/snippet}
-								</SuperForm>
+					{/snippet}
+				</SuperForm>
 			</div>
 		{/if}
 		{#if search}
@@ -447,48 +444,39 @@
 					{/each}
 					{#if displayActions}
 						<td class="text-end {regionCell}" role="gridcell">
-							{#if actions}{@render actions({ meta: row.meta, })}{:else}
-								{#if row.meta[identifierField]}
-									{@const actionsComponent = field_component_map[CUSTOM_ACTIONS_COMPONENT]}
-									{@const actionsURLModel = URLModel}
-									<TableRowActions
-										{deleteForm}
-										{model}
-										URLModel={actionsURLModel}
-										detailURL={`/${actionsURLModel}/${row.meta[identifierField]}${detailQueryParameter}`}
-										editURL={!(row.meta.builtin || row.meta.urn)
-											? `/${actionsURLModel}/${row.meta[identifierField]}/edit?next=${encodeURIComponent($page.url.pathname + $page.url.search)}`
-											: undefined}
-										{row}
-										hasBody={actionsBody}
-										{identifierField}
-										preventDelete={preventDelete(row)}
-									>
-										{#snippet head()}
-																			
-												{#if actionsHead}
-													{@render actionsHead?.()}
-												{/if}
-											
-																			{/snippet}
-										{#snippet body()}
-																			
-												{#if actionsBody}
-													{@render actionsBody?.()}
-												{/if}
-											
-																			{/snippet}
-										{#snippet tail()}
-																				{@const SvelteComponent_2 = actionsComponent}
+							{#if actions}{@render actions({ meta: row.meta })}{:else if row.meta[identifierField]}
+								{@const actionsComponent = field_component_map[CUSTOM_ACTIONS_COMPONENT]}
+								{@const actionsURLModel = URLModel}
+								<TableRowActions
+									{deleteForm}
+									{model}
+									URLModel={actionsURLModel}
+									detailURL={`/${actionsURLModel}/${row.meta[identifierField]}${detailQueryParameter}`}
+									editURL={!(row.meta.builtin || row.meta.urn)
+										? `/${actionsURLModel}/${row.meta[identifierField]}/edit?next=${encodeURIComponent($page.url.pathname + $page.url.search)}`
+										: undefined}
+									{row}
+									hasBody={actionsBody}
+									{identifierField}
+									preventDelete={preventDelete(row)}
+								>
+									{#snippet head()}
+										{#if actionsHead}
+											{@render actionsHead?.()}
+										{/if}
+									{/snippet}
+									{#snippet body()}
+										{#if actionsBody}
+											{@render actionsBody?.()}
+										{/if}
+									{/snippet}
+									{#snippet tail()}
+										{@const SvelteComponent_2 = actionsComponent}
 										{#if tail_render}{@render tail_render()}{:else}
-												<SvelteComponent_2
-													meta={row.meta ?? {}}
-													{actionsURLModel}
-												/>
-											{/if}
-																			{/snippet}
-									</TableRowActions>
-								{/if}
+											<SvelteComponent_2 meta={row.meta ?? {}} {actionsURLModel} />
+										{/if}
+									{/snippet}
+								</TableRowActions>
 							{/if}
 						</td>
 					{/if}

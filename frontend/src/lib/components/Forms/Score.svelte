@@ -6,17 +6,11 @@
 	import { createEventDispatcher } from 'svelte';
 	import { formFieldProxy, type SuperForm } from 'sveltekit-superforms';
 
-
-
-
 	interface ScoresDefinition {
 		score: number;
 		name: string;
 		description: string;
 	}
-
-
-	const { value, errors, constraints } = formFieldProxy(form, field);
 
 	const dispatch = createEventDispatcher();
 	let previous = $state([$value]);
@@ -53,10 +47,11 @@
 		disabled = false,
 		scores_definition = [],
 		form,
-		score = $bindable($value),
+		score = $bindable(undefined),
 		left
 	}: Props = $props();
-	let score = $derived($value);
+
+	const { value, errors, constraints } = formFieldProxy(form, field);
 
 	run(() => {
 		if (previous[0] !== $value && previous[0] !== undefined) {

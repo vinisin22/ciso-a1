@@ -7,7 +7,6 @@
 	import { safeTranslate } from '$lib/utils/i18n';
 	import type { CssClasses } from '@skeletonlabs/skeleton';
 
-	
 	interface Props {
 		class?: string;
 		type?: string;
@@ -21,7 +20,7 @@
 		hidden?: boolean;
 		disabled?: boolean;
 		required?: boolean;
-		[key: string]: any
+		[key: string]: any;
 	}
 
 	let {
@@ -33,9 +32,9 @@
 		helpText = undefined,
 		cachedValue = $bindable(undefined),
 		cacheLock = {
-		promise: new Promise((res) => res(null)),
-		resolve: (x) => x
-	},
+			promise: new Promise((res) => res(null)),
+			resolve: (x) => x
+		},
 		form,
 		hidden = false,
 		disabled = false,
@@ -48,8 +47,6 @@
 
 	// Store the display value separately from the actual form value
 	let displayValue: string = $state();
-
-	let cachedValue = $derived($value);
 
 	onMount(async () => {
 		const cacheResult = await cacheLock.promise;

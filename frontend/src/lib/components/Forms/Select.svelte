@@ -6,14 +6,6 @@
 	import * as m from '$paraglide/messages.js';
 	import { toCamelCase } from '$lib/utils/locales';
 
-
-	
-
-
-
-	const { value, errors, constraints } = formFieldProxy(form, field);
-	// $: value.set(cachedValue);
-	let cachedValue = $derived($value); // I must add an initial value.set(cachedValue) to make the cache work after that, but i firstly want to see if i can pass the test with this.
 	let selectElement: HTMLElement | null = $state(null);
 
 	onMount(async () => {
@@ -38,7 +30,7 @@
 		color_map?: any;
 		form: SuperForm<AnyZodObject>;
 		options?: Option[];
-		[key: string]: any
+		[key: string]: any;
 	}
 
 	let {
@@ -50,17 +42,20 @@
 		blank = false,
 		disableDoubleDash = false,
 		cacheLock = {
-		promise: new Promise((res) => res(null)),
-		resolve: (x) => x
-	},
+			promise: new Promise((res) => res(null)),
+			resolve: (x) => x
+		},
 		color_map = {},
 		form,
 		options = [],
 		...rest
 	}: Props = $props();
 
+	const { value, errors, constraints } = formFieldProxy(form, field);
+
 	let classesTextField = $derived((errors: string[] | undefined) =>
-		errors && errors.length > 0 ? 'input-error' : '');
+		errors && errors.length > 0 ? 'input-error' : ''
+	);
 </script>
 
 <div>

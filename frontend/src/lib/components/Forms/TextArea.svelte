@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import type { CacheLock } from '$lib/utils/types';
 
-	
 	interface Props {
 		class?: string;
 		label?: string | undefined;
@@ -16,7 +15,7 @@
 		disabled?: boolean;
 		rows?: number;
 		cols?: number;
-		[key: string]: any
+		[key: string]: any;
 	}
 
 	let {
@@ -27,9 +26,9 @@
 		form,
 		cachedValue = $bindable(''),
 		cacheLock = {
-		promise: new Promise((res) => res(null)),
-		resolve: (x) => x
-	},
+			promise: new Promise((res) => res(null)),
+			resolve: (x) => x
+		},
 		hidden = false,
 		disabled = false,
 		rows = 5,
@@ -39,8 +38,6 @@
 
 	label = label ?? field;
 	const { value, errors, constraints } = formFieldProxy(form, field);
-
-	let cachedValue = $derived($value);
 
 	onMount(async () => {
 		const cacheResult = await cacheLock.promise;

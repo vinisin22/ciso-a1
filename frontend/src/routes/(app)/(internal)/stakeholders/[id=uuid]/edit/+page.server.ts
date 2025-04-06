@@ -36,11 +36,11 @@ export const load: LayoutServerLoad = async (event) => {
 				},
 				event
 			);
-			throw redirect(
-				302,
-				getSecureRedirect(event.url.searchParams.get('next')) ||
-					`/${model.urlModel}/${riskAcceptance.id}`
-			);
+			redirect(
+            				302,
+            				getSecureRedirect(event.url.searchParams.get('next')) ||
+            					`/${model.urlModel}/${riskAcceptance.id}`
+            			);
 		}
 	}
 

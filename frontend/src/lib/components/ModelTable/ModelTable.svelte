@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { goto as _goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import TableRowActions from '$lib/components/TableRowActions/TableRowActions.svelte';
@@ -22,11 +24,10 @@
 	import { m } from '$paraglide/messages';
 	import { getLocale } from '$paraglide/runtime';
 	import {
-		popup,
 		type CssClasses,
 		type PopupSettings,
 		type SvelteEvent
-	} from '@skeletonlabs/skeleton';
+	} from '@skeletonlabs/skeleton-svelte';
 	import { DataHandler, type State } from '@vincjo/datatables/remote';
 	import { defaults, superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
@@ -39,42 +40,79 @@
 	import Th from './Th.svelte';
 	import { canPerformAction } from '$lib/utils/access-control';
 
-	// Props
-	export let source: TableSource = { head: [], body: [] };
-	export let interactive = true;
+	interface Props {
+		// Props
+		source?: TableSource;
+		interactive?: boolean;
+		search?: boolean;
+		rowsPerPage?: boolean;
+		rowCount?: boolean;
+		pagination?: boolean;
+		numberRowsPerPage?: number;
+		orderBy?: { identifier: string; direction: 'asc' | 'desc' } | undefined;
+		// Props (styles)
+		element?: CssClasses;
+		text?: CssClasses;
+		backgroundColor?: CssClasses;
+		color?: CssClasses;
+		regionHead?: CssClasses;
+		regionHeadCell?: CssClasses;
+		regionBody?: CssClasses;
+		regionCell?: CssClasses;
+		regionFoot?: CssClasses;
+		regionFootCell?: CssClasses;
+		displayActions?: boolean;
+		identifierField?: string;
+		deleteForm?: SuperValidated<AnyZodObject> | undefined;
+		URLModel?: urlModel | undefined;
+		baseEndpoint?: string;
+		detailQueryParameter?: string | undefined;
+		fields?: string[];
+		hideFilters?: boolean;
+		folderId?: string;
+		optButton?: import('svelte').Snippet;
+		addButton?: import('svelte').Snippet;
+		actions?: import('svelte').Snippet<[any]>;
+		actionsBody?: import('svelte').Snippet;
+		actionsHead?: import('svelte').Snippet;
+		tail?: import('svelte').Snippet;
+	}
 
-	export let search = true;
-	export let rowsPerPage = true;
-	export let rowCount = true;
-	export let pagination = true;
-	export let numberRowsPerPage = 10;
-
-	export let orderBy: { identifier: string; direction: 'asc' | 'desc' } | undefined = undefined;
-
-	// Props (styles)
-	export let element: CssClasses = 'table';
-	export let text: CssClasses = 'text-xs';
-	export let backgroundColor: CssClasses = 'bg-white';
-	export let color: CssClasses = '';
-	export let regionHead: CssClasses = '';
-	export let regionHeadCell: CssClasses = 'uppercase bg-white text-gray-700';
-	export let regionBody: CssClasses = 'bg-white';
-	export let regionCell: CssClasses = '';
-	export let regionFoot: CssClasses = '';
-	export let regionFootCell: CssClasses = '';
-
-	export let displayActions = true;
-
-	export let identifierField = 'id';
-	export let deleteForm: SuperValidated<AnyZodObject> | undefined = undefined;
-	export let URLModel: urlModel | undefined = undefined;
-	export let baseEndpoint: string = `/${URLModel}`;
-	export let detailQueryParameter: string | undefined = undefined;
-	export let fields: string[] = [];
-
-	export let hideFilters = false;
-
-	export let folderId: string = '';
+	let {
+		source = { head: [], body: [] },
+		interactive = true,
+		search = true,
+		rowsPerPage = true,
+		rowCount = true,
+		pagination = true,
+		numberRowsPerPage = 10,
+		orderBy = undefined,
+		element = 'table',
+		text = 'text-xs',
+		backgroundColor = 'bg-white',
+		color = '',
+		regionHead = '',
+		regionHeadCell = 'uppercase bg-white text-gray-700',
+		regionBody = 'bg-white',
+		regionCell = '',
+		regionFoot = '',
+		regionFootCell = '',
+		displayActions = true,
+		identifierField = 'id',
+		deleteForm = undefined,
+		URLModel = undefined,
+		baseEndpoint = `/${URLModel}`,
+		detailQueryParameter = $bindable(undefined),
+		fields = [],
+		hideFilters = $bindable(false),
+		folderId = '',
+		optButton,
+		addButton,
+		actions,
+		actionsBody,
+		actionsHead,
+		tail
+	}: Props = $props();
 
 	function onRowClick(
 		event: SvelteEvent<MouseEvent | KeyboardEvent, HTMLTableRowElement>,
@@ -106,8 +144,8 @@
 	// Replace $$props.class with classProp for compatibility
 	let classProp = ''; // Replacing $$props.class
 
-	$: classesBase = `${classProp || backgroundColor}`;
-	$: classesTable = `${element} ${text} ${color}`;
+	let classesBase = $derived(`${classProp || backgroundColor}`);
+	let classesTable = $derived(`${element} ${text} ${color}`);
 
 	const handler = new DataHandler(
 		source.body.map((item: Record<string, any>, index: number) => {
@@ -126,7 +164,7 @@
 		}
 	);
 	const rows = handler.getRows();
-	let invalidateTable = false;
+	let invalidateTable = $state(false);
 
 	handler.onChange((state: State) =>
 		loadTableData({ state, URLModel, endpoint: baseEndpoint, fields })
@@ -173,15 +211,17 @@
 			: {};
 
 	const filteredFields = Object.keys(filters);
-	const filterValues: { [key: string]: any } = {};
+	const filterValues: { [key: string]: any } = $state({});
 
 	// Initialize filter values from URL search params
 	for (const field of filteredFields)
 		filterValues[field] = $page.url.searchParams.getAll(field).map((value) => ({ value }));
 
-	$: hideFilters = hideFilters || !Object.entries(filters).some(([_, filter]) => !filter.hide);
+	hideFilters = $derived(
+		hideFilters || !Object.entries(filters).some(([_, filter]) => !filter.hide)
+	);
 
-	$: {
+	run(() => {
 		for (const field of filteredFields) {
 			handler.filter(
 				filterValues[field] ? filterValues[field].map((v: Record<string, any>) => v.value) : [],
@@ -199,30 +239,36 @@
 			_goto($page.url);
 			invalidateTable = false;
 		}
-	}
+	});
 
-	$: field_component_map = FIELD_COMPONENT_MAP[URLModel] ?? {};
-	$: model = URL_MODEL_MAP[URLModel];
-	$: canCreateObject = model
-		? $page.params.id
-			? canPerformAction({
-					user,
-					action: 'add',
-					model: model.name,
-					domain:
-						folderId ||
-						$page.data?.data?.folder?.id ||
-						$page.data?.data?.folder ||
-						$page.params.id ||
-						user.root_folder_id
-				})
-			: Object.hasOwn(user.permissions, `add_${model.name}`)
-		: false;
-	$: filterCount = filteredFields.reduce((acc, field) => acc + filterValues[field].length, 0);
+	let field_component_map = $derived(FIELD_COMPONENT_MAP[URLModel] ?? {});
+	let model = $derived(URL_MODEL_MAP[URLModel]);
+	let canCreateObject = $derived(
+		model
+			? $page.params.id
+				? canPerformAction({
+						user,
+						action: 'add',
+						model: model.name,
+						domain:
+							folderId ||
+							$page.data?.data?.folder?.id ||
+							$page.data?.data?.folder ||
+							$page.params.id ||
+							user.root_folder_id
+					})
+				: Object.hasOwn(user.permissions, `add_${model.name}`)
+			: false
+	);
+	let filterCount = $derived(
+		filteredFields.reduce((acc, field) => acc + filterValues[field].length, 0)
+	);
 
-	$: classesHexBackgroundText = (backgroundHexColor: string) => {
+	let classesHexBackgroundText = $derived((backgroundHexColor: string) => {
 		return isDark(backgroundHexColor) ? 'text-white' : '';
-	};
+	});
+
+	const tail_render = $derived(tail);
 </script>
 
 <div class="table-container {classesBase}">
@@ -230,10 +276,10 @@
 		{#if !hideFilters}
 			<button
 				use:popup={popupFilter}
-				class="btn variant-filled-primary self-end relative"
+				class="btn preset-filled-primary-500 self-end relative"
 				id="filters"
 			>
-				<i class="fa-solid fa-filter mr-2" />
+				<i class="fa-solid fa-filter mr-2"></i>
 				{m.filters()}
 				{#if filterCount}
 					<span class="badge absolute -top-0 -right-0 z-10">{filterCount}</span>
@@ -243,24 +289,26 @@
 				class="card p-2 bg-white max-w-lg shadow-lg space-y-2 border border-surface-200"
 				data-popup="popupFilter"
 			>
-				<SuperForm {_form} validators={zod(z.object({}))} let:form>
-					{#each filteredFields as field}
-						{#if filters[field]?.component}
-							<svelte:component
-								this={filters[field].component}
-								{form}
-								{field}
-								{...filters[field].props}
-								fieldContext="filter"
-								label={safeTranslate(filters[field].props?.label)}
-								on:change={(e) => {
-									const value = e.detail;
-									filterValues[field] = value.map((v) => ({ value: v }));
-									invalidateTable = true;
-								}}
-							/>
-						{/if}
-					{/each}
+				<SuperForm {_form} validators={zod(z.object({}))}>
+					{#snippet children({ form })}
+						{#each filteredFields as field}
+							{#if filters[field]?.component}
+								{@const SvelteComponent = filters[field].component}
+								<SvelteComponent
+									{form}
+									{field}
+									{...filters[field].props}
+									fieldContext="filter"
+									label={safeTranslate(filters[field].props?.label)}
+									on:change={(e) => {
+										const value = e.detail;
+										filterValues[field] = value.map((v) => ({ value: v }));
+										invalidateTable = true;
+									}}
+								/>
+							{/if}
+						{/each}
+					{/snippet}
 				</SuperForm>
 			</div>
 		{/if}
@@ -271,9 +319,9 @@
 			<RowsPerPage {handler} />
 		{/if}
 		<div class="flex space-x-2 items-center">
-			<slot name="optButton" />
+			{@render optButton?.()}
 			{#if canCreateObject}
-				<slot name="addButton" />
+				{@render addButton?.()}
 			{/if}
 		</div>
 	</header>
@@ -298,10 +346,10 @@
 			{#each $rows as row, rowIndex}
 				{@const meta = row?.meta ?? row}
 				<tr
-					on:click={(e) => {
+					onclick={(e) => {
 						onRowClick(e, rowIndex);
 					}}
-					on:keydown={(e) => {
+					onkeydown={(e) => {
 						onRowKeydown(e, rowIndex);
 					}}
 					aria-rowindex={rowIndex + 1}
@@ -311,9 +359,10 @@
 							{@const component = field_component_map[key]}
 							<td class={regionCell} role="gridcell">
 								{#if component}
-									<svelte:component this={component} {meta} cell={value} />
+									{@const SvelteComponent_1 = component}
+									<SvelteComponent_1 {meta} cell={value} />
 								{:else}
-									<span class="font-token whitespace-pre-line break-words">
+									<span class="base-font-family whitespace-pre-line break-words">
 										{#if Array.isArray(value)}
 											<ul class="list-disc pl-4 whitespace-normal">
 												{#each value as val}
@@ -394,43 +443,40 @@
 					{/each}
 					{#if displayActions}
 						<td class="text-end {regionCell}" role="gridcell">
-							<slot name="actions" meta={row.meta}>
-								{#if row.meta[identifierField]}
-									{@const actionsComponent = field_component_map[CUSTOM_ACTIONS_COMPONENT]}
-									{@const actionsURLModel = URLModel}
-									<TableRowActions
-										{deleteForm}
-										{model}
-										URLModel={actionsURLModel}
-										detailURL={`/${actionsURLModel}/${row.meta[identifierField]}${detailQueryParameter}`}
-										editURL={!(row.meta.builtin || row.meta.urn)
-											? `/${actionsURLModel}/${row.meta[identifierField]}/edit?next=${encodeURIComponent($page.url.pathname + $page.url.search)}`
-											: undefined}
-										{row}
-										hasBody={$$slots.actionsBody}
-										{identifierField}
-										preventDelete={preventDelete(row)}
-									>
-										<svelte:fragment slot="head">
-											{#if $$slots.actionsHead}
-												<slot name="actionsHead" />
-											{/if}
-										</svelte:fragment>
-										<svelte:fragment slot="body">
-											{#if $$slots.actionsBody}
-												<slot name="actionsBody" />
-											{/if}
-										</svelte:fragment>
-										<slot slot="tail" name="tail">
-											<svelte:component
-												this={actionsComponent}
-												meta={row.meta ?? {}}
-												{actionsURLModel}
-											/>
-										</slot>
-									</TableRowActions>
-								{/if}
-							</slot>
+							{#if actions}{@render actions({ meta: row.meta })}{:else if row.meta[identifierField]}
+								{@const actionsComponent = field_component_map[CUSTOM_ACTIONS_COMPONENT]}
+								{@const actionsURLModel = URLModel}
+								<TableRowActions
+									{deleteForm}
+									{model}
+									URLModel={actionsURLModel}
+									detailURL={`/${actionsURLModel}/${row.meta[identifierField]}${detailQueryParameter}`}
+									editURL={!(row.meta.builtin || row.meta.urn)
+										? `/${actionsURLModel}/${row.meta[identifierField]}/edit?next=${encodeURIComponent($page.url.pathname + $page.url.search)}`
+										: undefined}
+									{row}
+									hasBody={actionsBody}
+									{identifierField}
+									preventDelete={preventDelete(row)}
+								>
+									{#snippet head()}
+										{#if actionsHead}
+											{@render actionsHead?.()}
+										{/if}
+									{/snippet}
+									{#snippet body()}
+										{#if actionsBody}
+											{@render actionsBody?.()}
+										{/if}
+									{/snippet}
+									{#snippet tail()}
+										{@const SvelteComponent_2 = actionsComponent}
+										{#if tail_render}{@render tail_render()}{:else}
+											<SvelteComponent_2 meta={row.meta ?? {}} {actionsURLModel} />
+										{/if}
+									{/snippet}
+								</TableRowActions>
+							{/if}
 						</td>
 					{/if}
 				</tr>

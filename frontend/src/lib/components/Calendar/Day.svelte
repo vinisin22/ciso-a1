@@ -2,10 +2,19 @@
 	import { fly } from 'svelte/transition';
 	import Anchor from '$lib/components/Anchor/Anchor.svelte';
 
-	export let day: number;
-	export let month: number;
-	export let year: number;
-	export let info: any[];
+	interface Props {
+		day: number;
+		month: number;
+		year: number;
+		info: any[];
+	}
+
+	let {
+		day,
+		month,
+		year,
+		info
+	}: Props = $props();
 
 	let today = new Date();
 

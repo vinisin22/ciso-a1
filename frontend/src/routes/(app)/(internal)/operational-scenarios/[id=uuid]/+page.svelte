@@ -4,16 +4,20 @@
 	import { page } from '$app/stores';
 	import { pageTitle } from '$lib/utils/stores';
 	import ModelTable from '$lib/components/ModelTable/ModelTable.svelte';
-	import { popup, type PopupSettings } from '@skeletonlabs/skeleton';
+	import { type PopupSettings } from '@skeletonlabs/skeleton-svelte';
 	import { safeTranslate } from '$lib/utils/i18n';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	const operationalScenario = data.data;
 
 	pageTitle.set(m.operationalScenarioRefId({ refId: operationalScenario.ref_id }));
 
-	let activeActivity: string | null = null;
+	let activeActivity: string | null = $state(null);
 	$page.url.searchParams.forEach((value, key) => {
 		if (key === 'activity' && value === 'one') {
 			activeActivity = 'one';
@@ -48,7 +52,7 @@
 				href="/ebios-rm/{operationalScenario.ebios_rm_study.id}"
 				class="flex items-center space-x-2 text-primary-800 hover:text-primary-600"
 			>
-				<i class="fa-solid fa-arrow-left" />
+				<i class="fa-solid fa-arrow-left"></i>
 				<p class="">{m.goBackToEbiosRmStudy()}</p>
 			</a>
 			<div class="flex font-bold text-2xl space-x-2">
@@ -70,9 +74,9 @@
 			</div>
 			<a
 				href={`${$page.url.pathname}/edit?activity=${activeActivity}&next=${$page.url.pathname}?activity=${activeActivity}`}
-				class="btn variant-filled-primary h-fit justify-self-end"
+				class="btn preset-filled-primary-500 h-fit justify-self-end"
 			>
-				<i class="fa-solid fa-pen-to-square mr-2" data-testid="edit-button" />
+				<i class="fa-solid fa-pen-to-square mr-2" data-testid="edit-button"></i>
 				{m.edit()}
 			</a>
 		</div>
@@ -190,7 +194,7 @@
 						<p data-testid="likelihood-description" class="font-semibold">
 							{operationalScenario.likelihood.description}
 						</p>
-						<div class="arrow bg-black" />
+						<div class="arrow bg-black"></div>
 					</div>
 					<h3 class="font-semibold text-lg text-gray-700 flex items-center space-x-2">
 						<i class="fa-solid fa-dice text-black opacity-75"></i>
@@ -215,7 +219,7 @@
 						<p data-testid="gravity-description" class="font-semibold">
 							{operationalScenario.gravity.description}
 						</p>
-						<div class="arrow bg-black" />
+						<div class="arrow bg-black"></div>
 					</div>
 					<h3 class="font-semibold text-lg text-gray-700 flex items-center space-x-2">
 						<i class="fa-solid fa-bomb text-black opacity-75"></i>
@@ -240,7 +244,7 @@
 						<p data-testid="risk-level-description" class="font-semibold">
 							{operationalScenario.risk_level.description}
 						</p>
-						<div class="arrow bg-black" />
+						<div class="arrow bg-black"></div>
 					</div>
 					<h3 class="font-semibold text-lg text-gray-700 flex items-center space-x-2">
 						<i class="fa-solid fa-circle-radiation text-black opacity-75"></i>

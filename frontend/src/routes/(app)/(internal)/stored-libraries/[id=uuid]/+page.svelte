@@ -10,13 +10,13 @@
 	import { formatDateOrDateTime } from '$lib/utils/datetime';
 	import { m } from '$paraglide/messages';
 	import { getLocale } from '$paraglide/runtime';
-	import { ProgressRadial, tableSourceMapper } from '@skeletonlabs/skeleton';
+	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
 	import type { ActionResult } from '@sveltejs/kit';
 	import TreeViewItemContent from '../../frameworks/[id=uuid]/TreeViewItemContent.svelte';
 
-	export let data;
+	let { data } = $props();
 
-	let loading = { form: false, library: '' };
+	let loading = $state({ form: false, library: '' });
 	const showRisks = true;
 
 	interface LibraryObjects {
@@ -97,7 +97,7 @@
 		applyAction(result);
 	}
 
-	$: displayImportButton = !(data.library.is_loaded ?? true);
+	let displayImportButton = $derived(!(data.library.is_loaded ?? true));
 </script>
 
 <div class="card bg-white p-4 shadow space-y-4">
@@ -107,7 +107,7 @@
 			<div>
 				{#if displayImportButton}
 					{#if loading.form}
-						<ProgressRadial width="w-6" meter="stroke-primary-500" />
+						<ProgressRing width="w-6" meter="stroke-primary-500" />
 					{:else}
 						<form
 							method="post"
@@ -121,11 +121,11 @@
 									update();
 								};
 							}}
-							on:submit={handleSubmit}
+							onsubmit={handleSubmit}
 						>
 							{#if $page.data.user.is_admin}
 								<button type="submit" class="p-1 btn text-xl hover:text-primary-500">
-									<i class="fa-solid fa-file-import" />
+									<i class="fa-solid fa-file-import"></i>
 								</button>
 							{/if}
 						</form>

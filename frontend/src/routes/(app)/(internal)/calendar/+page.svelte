@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Calendar from '$lib/components/Calendar/Calendar.svelte';
 
-	export let data;
+	let { data } = $props();
 	const applied_controls = data.applied_controls;
 	const risk_acceptances = data.risk_acceptances;
 	let info: object[] = [];

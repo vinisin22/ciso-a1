@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { page } from '$app/stores';
 	import RecursiveTreeView from '$lib/components/TreeView/RecursiveTreeView.svelte';
 	import { displayOnlyAssessableNodes } from './store';
@@ -10,12 +12,11 @@
 		ModalSettings,
 		ModalStore,
 		PopupSettings,
-		TreeViewNode
-	} from '@skeletonlabs/skeleton';
+		TreeViewNode, Switch, ProgressRing } from '@skeletonlabs/skeleton-svelte';
 
 	import { goto } from '$app/navigation';
 
-	import { getModalStore, popup, SlideToggle } from '@skeletonlabs/skeleton';
+	import { } from '@skeletonlabs/skeleton-svelte';
 	import type { ActionData, PageData } from './$types';
 	import TreeViewItemContent from './TreeViewItemContent.svelte';
 	import TreeViewItemLead from './TreeViewItemLead.svelte';
@@ -32,19 +33,15 @@
 	import { safeTranslate } from '$lib/utils/i18n';
 	import { m } from '$paraglide/messages';
 
-	export let data: PageData;
-	export let form: ActionData;
 
 	import List from '$lib/components/List/List.svelte';
 	import ConfirmModal from '$lib/components/Modals/ConfirmModal.svelte';
 	import { displayScoreColor, darkenColor } from '$lib/utils/helpers';
 	import { expandedNodesState } from '$lib/utils/stores';
-	import { ProgressRadial } from '@skeletonlabs/skeleton';
+	import { } from '@skeletonlabs/skeleton-svelte';
 	import { canPerformAction } from '$lib/utils/access-control';
 
-	$: tree = data.tree;
 
-	$: compliance_assessment_donut_values = data.compliance_assessment_donut_values;
 
 	const user = $page.data.user;
 	const model = URL_MODEL_MAP['compliance-assessments'];
@@ -64,8 +61,8 @@
 
 	const has_threats = data.threats.total_unique_threats > 0;
 
-	let threatDialogOpen = false;
-	let dialogElement;
+	let threatDialogOpen = $state(false);
+	let dialogElement = $state();
 
 	function openThreatsDialog() {
 		threatDialogOpen = true;
@@ -81,6 +78,12 @@
 	}
 
 	import TreeChart from '$lib/components/Chart/TreeChart.svelte';
+	interface Props {
+		data: PageData;
+		form: ActionData;
+	}
+
+	let { data, form }: Props = $props();
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.metaKey || event.ctrlKey) return;
@@ -134,14 +137,14 @@
 		return resultCounts;
 	};
 
-	let selectedStatus = ['done', 'to_do', 'in_progress', 'in_review'];
-	let selectedResults = [
+	let selectedStatus = $state(['done', 'to_do', 'in_progress', 'in_review']);
+	let selectedResults = $state([
 		'compliant',
 		'non_compliant',
 		'partially_compliant',
 		'not_assessed',
 		'not_applicable'
-	];
+	]);
 	function toggleItem(item, selectedItems) {
 		if (selectedItems.includes(item)) {
 			return selectedItems.filter((s) => s !== item);
@@ -198,10 +201,7 @@
 			};
 		});
 	}
-	let treeViewNodes: TreeViewNode[];
-	$: if (tree) {
-		treeViewNodes = transformToTreeView(Object.entries(tree));
-	}
+	let treeViewNodes: TreeViewNode[] = $state();
 
 	function assessableNodesCount(nodes: TreeViewNode[]): number {
 		let count = 0;
@@ -216,10 +216,9 @@
 		return count;
 	}
 
-	let expandedNodes: TreeViewNode[] = [];
+	let expandedNodes: TreeViewNode[] = $state([]);
 
 	expandedNodes = $expandedNodesState;
-	$: expandedNodesState.set(expandedNodes);
 
 	const popupDownload: PopupSettings = {
 		event: 'click',
@@ -248,7 +247,7 @@
 		modalStore.trigger(modal);
 	}
 
-	let createAppliedControlsLoading = false;
+	let createAppliedControlsLoading = $state(false);
 
 	function modalConfirmCreateSuggestedControls(id: string, name: string, action: string): void {
 		const modalComponent: ModalComponent = {
@@ -281,7 +280,19 @@
 		modalStore.trigger(modal);
 	}
 
-	$: if (createAppliedControlsLoading === true && form) createAppliedControlsLoading = false;
+	let tree = $derived(data.tree);
+	let compliance_assessment_donut_values = $derived(data.compliance_assessment_donut_values);
+	run(() => {
+		if (tree) {
+			treeViewNodes = transformToTreeView(Object.entries(tree));
+		}
+	});
+	run(() => {
+		expandedNodesState.set(expandedNodes);
+	});
+	run(() => {
+		if (createAppliedControlsLoading === true && form) createAppliedControlsLoading = false;
+	});
 </script>
 
 <div class="flex flex-col space-y-4 whitespace-pre-line">
@@ -349,7 +360,7 @@
 				{#if data.global_score.score >= 0}
 					<div class="absolute font-bold text-sm">{m.maturity()}</div>
 					<div class="flex justify-center items-center w-full">
-						<ProgressRadial
+						<ProgressRing
 							stroke={100}
 							meter={displayScoreColor(data.global_score.score, data.global_score.max_score)}
 							font={125}
@@ -357,7 +368,7 @@
 							width={'w-52'}
 						>
 							{data.global_score.score}
-						</ProgressRadial>
+						</ProgressRing>
 					</div>
 				{/if}
 			</div>
@@ -388,8 +399,8 @@
 		{/key}
 		<div class="flex flex-col space-y-2 ml-4">
 			<div class="flex flex-row space-x-2">
-				<button class="btn variant-filled-primary w-full" use:popup={popupDownload}
-					><i class="fa-solid fa-download mr-2" />{m.exportButton()}</button
+				<button class="btn preset-filled-primary-500 w-full" use:popup={popupDownload}
+					><i class="fa-solid fa-download mr-2"></i>{m.exportButton()}</button
 				>
 				<div
 					class="card whitespace-nowrap bg-white py-2 w-fit shadow-lg space-y-1 z-10"
@@ -422,17 +433,17 @@
 					<Anchor
 						breadcrumbAction="push"
 						href={`${$page.url.pathname}/edit?next=${$page.url.pathname}`}
-						class="btn variant-filled-primary h-fit"
+						class="btn preset-filled-primary-500 h-fit"
 						data-testid="edit-button"
-						><i class="fa-solid fa-pen-to-square mr-2" /> {m.edit()}</Anchor
+						><i class="fa-solid fa-pen-to-square mr-2"></i> {m.edit()}</Anchor
 					>
 				{/if}
 			</div>
 			{#if !$page.data.user.is_third_party}
 				<Anchor
 					href={`${$page.url.pathname}/action-plan`}
-					class="btn variant-filled-primary h-fit"
-					breadcrumbAction="push"><i class="fa-solid fa-heart-pulse mr-2" />{m.actionPlan()}</Anchor
+					class="btn preset-filled-primary-500 h-fit"
+					breadcrumbAction="push"><i class="fa-solid fa-heart-pulse mr-2"></i>{m.actionPlan()}</Anchor
 				>
 			{/if}
 			<span class="pt-4 font-light text-sm">{m.powerUps()}</span>
@@ -441,26 +452,26 @@
 					breadcrumbAction="push"
 					href={`${$page.url.pathname}/flash-mode`}
 					class="btn text-gray-100 bg-gradient-to-l from-sky-500 to-violet-500 h-fit"
-					><i class="fa-solid fa-bolt mr-2" /> {m.flashMode()}</Anchor
+					><i class="fa-solid fa-bolt mr-2"></i> {m.flashMode()}</Anchor
 				>
 			{/if}
 			<Anchor
 				breadcrumbAction="push"
 				href={`${$page.url.pathname}/table-mode`}
 				class="btn text-gray-100 bg-gradient-to-l from-sky-500 to-yellow-500 h-fit"
-				><i class="fa-solid fa-table-list mr-2" /> {m.tableMode()}</Anchor
+				><i class="fa-solid fa-table-list mr-2"></i> {m.tableMode()}</Anchor
 			>
 			{#if !$page.data.user.is_third_party}
 				<button
 					class="btn text-gray-100 bg-gradient-to-l from-sky-500 to-green-600 h-fit"
-					on:click={() => modalCreateForm()}
-					><i class="fa-solid fa-diagram-project mr-2" /> {m.applyMapping()}
+					onclick={() => modalCreateForm()}
+					><i class="fa-solid fa-diagram-project mr-2"></i> {m.applyMapping()}
 				</button>
 			{/if}
 			{#if Object.hasOwn($page.data.user.permissions, 'add_appliedcontrol') && data.compliance_assessment.framework.reference_controls.length > 0}
 				<button
 					class="btn text-gray-100 bg-gradient-to-r from-fuchsia-500 to-pink-500 h-fit whitespace-normal"
-					on:click={() => {
+					onclick={() => {
 						modalConfirmCreateSuggestedControls(
 							data.compliance_assessment.id,
 							data.compliance_assessment.name,
@@ -470,9 +481,9 @@
 				>
 					<span class="mr-2">
 						{#if createAppliedControlsLoading}
-							<ProgressRadial class="-ml-2" width="w-6" meter="stroke-white" stroke={80} />
+							<ProgressRing class="-ml-2" width="w-6" meter="stroke-white" stroke={80} />
 						{:else}
-							<i class="fa-solid fa-fire-extinguisher" />
+							<i class="fa-solid fa-fire-extinguisher"></i>
 						{/if}
 					</span>
 					{m.suggestControls()}
@@ -481,7 +492,7 @@
 			{#if has_threats}
 				<button
 					class="border rounded-lg btn h-fit bg-gradient-to-r from-yellow-500 to-yellow-300 px-3 py-2"
-					on:click={openThreatsDialog}
+					onclick={openThreatsDialog}
 				>
 					<div class="flex items-center space-x-2">
 						<i class="fa-solid fa-triangle-exclamation text-red-700"></i>
@@ -495,7 +506,7 @@
 	<div class="card px-6 py-4 bg-white flex flex-col shadow-lg">
 		<div class=" flex items-center font-semibold">
 			<span class="h4">{m.associatedRequirements()}</span>
-			<span class="badge variant-soft-primary ml-1">
+			<span class="badge preset-tonal-primary ml-1">
 				{#if treeViewNodes}
 					{assessableNodesCount(treeViewNodes)}
 				{/if}
@@ -505,7 +516,7 @@
 				{#each Object.entries(complianceStatusColorMap) as [status, color]}
 					<button
 						type="button"
-						on:click={() => toggleStatus(status)}
+						onclick={() => toggleStatus(status)}
 						class="px-2 py-1 rounded-md font-bold"
 						style="background-color: {selectedStatus.includes(status)
 							? color + '44'
@@ -521,7 +532,7 @@
 				{#each Object.entries(complianceResultColorMap) as [result, color]}
 					<button
 						type="button"
-						on:click={() => toggleResult(result)}
+						onclick={() => toggleResult(result)}
 						class="px-2 py-1 rounded-md font-bold"
 						style="background-color: {selectedResults.includes(result)
 							? color + '44'
@@ -539,7 +550,7 @@
 				{:else}
 					<p class="font-bold text-green-500">{m.ShowAllNodesMessage()}</p>
 				{/if}
-				<SlideToggle
+				<Switch
 					name="questionnaireToggle"
 					class="flex flex-row items-center justify-center"
 					active="bg-primary-500"
@@ -552,12 +563,12 @@
 					{:else}
 						<p class="font-bold">{m.ShowOnlyAssessable()}</p>
 					{/if}
-				</SlideToggle>
+				</Switch>
 			</div>
 		</div>
 
 		<div class="flex items-center my-2 text-xs space-x-2 text-gray-500">
-			<i class="fa-solid fa-diagram-project" />
+			<i class="fa-solid fa-diagram-project"></i>
 			<p>{m.mappingInferenceTip()}</p>
 		</div>
 		{#key data}
@@ -575,11 +586,11 @@
 	<dialog
 		bind:this={dialogElement}
 		class="card p-4 bg-white shadow-2xl w-2/3 max-h-3/4 overflow-auto rounded-lg"
-		on:close={() => (threatDialogOpen = false)}
+		onclose={() => (threatDialogOpen = false)}
 	>
 		<div class="flex justify-between items-center mb-4">
 			<h3 class="h3 font-bold capitalize">{m.potentialThreats()}</h3>
-			<button class="btn btn-sm variant-filled-error" on:click={closeThreatsDialog}>
+			<button class="btn btn-sm preset-filled-error-500" onclick={closeThreatsDialog}>
 				<i class="fa-solid fa-times"></i>
 			</button>
 		</div>

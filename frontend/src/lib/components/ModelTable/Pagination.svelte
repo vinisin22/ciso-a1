@@ -3,7 +3,11 @@
 	import { page } from '$app/stores';
 	import { m } from '$paraglide/messages';
 	import { afterNavigate } from '$app/navigation';
-	export let handler: DataHandler;
+	interface Props {
+		handler: DataHandler;
+	}
+
+	let { handler }: Props = $props();
 
 	const pageNumber = handler.getPageNumber();
 	const pageCount = handler.getPageCount();
@@ -22,11 +26,11 @@
 </script>
 
 <section class="flex">
-	<button type="button" class:disabled={$pageNumber === 1} on:click={() => setPage('previous')}>
+	<button type="button" class:disabled={$pageNumber === 1} onclick={() => setPage('previous')}>
 		{m.previous()}
 	</button>
 	{#if $pages === undefined}
-		<button type="button" on:click={() => setPage($pageNumber)}>
+		<button type="button" onclick={() => setPage($pageNumber)}>
 			{$pageNumber}
 		</button>
 	{:else}
@@ -35,7 +39,7 @@
 				type="button"
 				class:active={$pageNumber === page}
 				class:ellipse={page === null}
-				on:click={() => setPage(page)}
+				onclick={() => setPage(page)}
 			>
 				{page ?? '...'}
 			</button>
@@ -44,7 +48,7 @@
 	<button
 		type="button"
 		class:disabled={$pageNumber === $pageCount}
-		on:click={() => setPage('next')}
+		onclick={() => setPage('next')}
 	>
 		{m.next()}
 	</button>

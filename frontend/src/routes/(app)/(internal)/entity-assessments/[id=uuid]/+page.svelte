@@ -3,12 +3,15 @@
 	import { page } from '$app/stores';
 	import DetailView from '$lib/components/DetailView/DetailView.svelte';
 	import { m } from '$paraglide/messages';
-	import { TreeView, TreeViewItem } from '@skeletonlabs/skeleton';
 	import AuditTableMode from '../../../(third-party)/compliance-assessments/[id=uuid]/table-mode/+page.svelte';
 	import type { Actions, PageData } from './$types';
 
-	export let data: PageData;
-	export let form: Actions;
+	interface Props {
+		data: PageData;
+		form: Actions;
+	}
+
+	let { data, form }: Props = $props();
 
 	const mailing =
 		Boolean(data.data.compliance_assessment) && Boolean(data.data.representatives.length);
@@ -33,20 +36,22 @@
 					}}
 				>
 					<span class="font-semibold text-lg select-none">{m.questionnaire()}</span>
-					<svelte:fragment slot="children">
-						{#if Object.hasOwn($page.state, 'auditTableMode')}
-							<div class="max-h-[48rem] overflow-y-scroll">
-								<AuditTableMode
-									{form}
-									data={$page.state.auditTableMode}
-									actionPath={`/compliance-assessments/${data.data.compliance_assessment.id}/table-mode`}
-									shallow
-									questionnaireOnly
-									invalidateAll={false}
-								/>
-							</div>
-						{/if}
-					</svelte:fragment>
+					{#snippet children()}
+									
+							{#if Object.hasOwn($page.state, 'auditTableMode')}
+								<div class="max-h-[48rem] overflow-y-scroll">
+									<AuditTableMode
+										{form}
+										data={$page.state.auditTableMode}
+										actionPath={`/compliance-assessments/${data.data.compliance_assessment.id}/table-mode`}
+										shallow
+										questionnaireOnly
+										invalidateAll={false}
+									/>
+								</div>
+							{/if}
+						
+									{/snippet}
 				</TreeViewItem>
 			</TreeView>
 		</div>

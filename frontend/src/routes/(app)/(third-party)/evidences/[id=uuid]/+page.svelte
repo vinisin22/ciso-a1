@@ -1,8 +1,7 @@
 <script lang="ts">
 	import ConfirmModal from '$lib/components/Modals/ConfirmModal.svelte';
 	import { getModelInfo } from '$lib/utils/crud.js';
-	import type { ModalComponent, ModalSettings, ModalStore } from '@skeletonlabs/skeleton';
-	import { getModalStore } from '@skeletonlabs/skeleton';
+	import type { ModalComponent, ModalSettings, ModalStore } from '@skeletonlabs/skeleton-svelte';
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
@@ -13,7 +12,11 @@
 	import { z } from 'zod';
 	import { zod } from 'sveltekit-superforms/adapters';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	interface Attachment {
 		type: string;
@@ -21,7 +24,7 @@
 		fileExists: boolean;
 	}
 
-	let attachment: Attachment | undefined = undefined;
+	let attachment: Attachment | undefined = $state(undefined);
 	const modalStore: ModalStore = getModalStore();
 
 	function modalConfirm(id: string, name: string, action: string): void {
@@ -73,16 +76,16 @@
 			<div class="space-x-2">
 				<Anchor
 					href={`./${data.data.id}/attachment`}
-					class="btn variant-filled-primary h-fit"
+					class="btn preset-filled-primary-500 h-fit"
 					data-testid="attachment-download-button"
-					><i class="fa-solid fa-download mr-2" /> {m.download()}</Anchor
+					><i class="fa-solid fa-download mr-2"></i> {m.download()}</Anchor
 				>
 				<button
-					on:click={(_) => {
+					onclick={(_) => {
 						modalConfirm(data.data.id, data.data.attachment, '?/deleteAttachment');
 					}}
-					on:keydown={(_) => modalConfirm(data.data.id, data.data.attachment, '?/deleteAttachment')}
-					class="btn variant-filled-tertiary h-full"><i class="fa-solid fa-trash" /></button
+					onkeydown={(_) => modalConfirm(data.data.id, data.data.attachment, '?/deleteAttachment')}
+					class="btn preset-filled-tertiary-500 h-full"><i class="fa-solid fa-trash"></i></button
 				>
 			</div>
 		</div>

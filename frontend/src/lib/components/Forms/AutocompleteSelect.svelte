@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: Can't migrate code with beforeUpdate. Please migrate by hand. -->
 <script lang="ts">
 	import { safeTranslate } from '$lib/utils/i18n';
 	import type { CacheLock } from '$lib/utils/types';
@@ -111,7 +112,7 @@
 	const multiSelectOptions = {
 		minSelect: $constraints && $constraints.required === true ? 1 : 0,
 		maxSelect: multiple ? undefined : 1,
-		liSelectedClass: multiple ? '!chip !variant-filled' : '!bg-transparent',
+		liSelectedClass: multiple ? '!chip !preset-filled' : '!bg-transparent',
 		inputClass: 'focus:!ring-0 focus:!outline-none',
 		outerDivClass: '!select',
 		closeDropdownOnSelect: !multiple

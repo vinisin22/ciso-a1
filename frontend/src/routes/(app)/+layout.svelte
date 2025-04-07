@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	// Most of your app wide CSS should be put in this file
-	import '../../app.postcss';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	// import '../../app.css';
+	import { AppBar } from '@skeletonlabs/skeleton-svelte';
 	import { safeTranslate } from '$lib/utils/i18n';
 
 	import SideBar from '$lib/components/SideBar/SideBar.svelte';
@@ -13,36 +15,42 @@
 
 	import CommandPalette from '$lib/components/CommandPalette/CommandPalette.svelte';
 
-	let sidebarOpen = true;
+	let sidebarOpen = $state(true);
 
-	$: classesSidebarOpen = (open: boolean) => (open ? 'ml-7 lg:ml-64' : 'ml-7');
+	let classesSidebarOpen = $derived((open: boolean) => (open ? 'ml-7 lg:ml-64' : 'ml-7'));
 
-	$: if (browser) {
-		const fromLogin = getCookie('from_login');
-		if (fromLogin === 'true') {
-			deleteCookie('from_login');
-			fetch('/fe-api/waiting-risk-acceptances').then(async (res) => {
-				const data = await res.json();
-				const number = data.count ?? 0;
-				if (number <= 0) return;
-				clientSideToast.set({
-					message: m.waitingRiskAcceptances({
-						number: number,
-						s: number > 1 ? 's' : '',
-						itPlural: number > 1 ? 'i' : 'e'
-					}),
-					type: 'info'
+	run(() => {
+		if (browser) {
+			const fromLogin = getCookie('from_login');
+			if (fromLogin === 'true') {
+				deleteCookie('from_login');
+				fetch('/fe-api/waiting-risk-acceptances').then(async (res) => {
+					const data = await res.json();
+					const number = data.count ?? 0;
+					if (number <= 0) return;
+					clientSideToast.set({
+						message: m.waitingRiskAcceptances({
+							number: number,
+							s: number > 1 ? 's' : '',
+							itPlural: number > 1 ? 'i' : 'e'
+						}),
+						type: 'info'
+					});
 				});
-			});
+			}
 		}
-	}
-	import type { ModalComponent, ModalSettings, ModalStore } from '@skeletonlabs/skeleton';
-	import { getModalStore } from '@skeletonlabs/skeleton';
+	});
+	import type { ModalComponent, ModalSettings, ModalStore } from '@skeletonlabs/skeleton-svelte';
 	import type { PageData, ActionData } from './$types';
 	import QuickStartModal from '$lib/components/SideBar/QuickStart/QuickStartModal.svelte';
 
-	export let data: PageData;
-	export let form: ActionData;
+	interface Props {
+		data: PageData;
+		form: ActionData;
+		children?: import('svelte').Snippet;
+	}
+
+	let { data, form, children }: Props = $props();
 	const modalStore: ModalStore = getModalStore();
 	function modalQuickStart(): void {
 		let modalComponent: ModalComponent = {
@@ -64,10 +72,10 @@
 	slotPageContent="p-8 bg-gradient-to-br from-violet-100 to-slate-200"
 	regionPage="transition-all duration-300 {classesSidebarOpen(sidebarOpen)}"
 >
-	<svelte:fragment slot="sidebarLeft">
+	{#snippet sidebarLeft()}
 		<SideBar bind:open={sidebarOpen} />
-	</svelte:fragment>
-	<svelte:fragment slot="pageHeader">
+	{/snippet}
+	{#snippet pageHeader()}
 		<AppBar background="bg-white" padding="py-2 px-4" class="relative">
 			<span
 				class="text-2xl font-bold pb-1 bg-gradient-to-r from-pink-500 to-violet-600 bg-clip-text text-transparent"
@@ -77,11 +85,11 @@
 			</span>
 			{#if data?.user?.is_admin}
 				<button
-					on:click={modalQuickStart}
+					onclick={modalQuickStart}
 					class="absolute top-7 right-9 p-2 rounded-full bg-violet-500 text-white text-xs shadow-lg
-                 ring-2 ring-violet-400 ring-offset-2 transition-all duration-300
-                 hover:bg-violet-600 hover:ring-violet-300 hover:ring-offset-violet-100
-                 hover:shadow-violet-500/50 focus:outline-none focus:ring-violet-500"
+	                 ring-2 ring-violet-400 ring-offset-2 transition-all duration-300
+	                 hover:bg-violet-600 hover:ring-violet-300 hover:ring-offset-violet-100
+	                 hover:shadow-violet-500/50 focus:outline-none focus:ring-violet-500"
 				>
 					{m.quickStart()}
 				</button>
@@ -89,9 +97,9 @@
 			<hr class="w-screen my-1" />
 			<Breadcrumbs />
 		</AppBar>
-	</svelte:fragment>
+	{/snippet}
 	<!-- Router Slot -->
 	<CommandPalette />
-	<slot />
+	{@render children?.()}
 	<!-- ---- / ---- -->
 </AppShell>

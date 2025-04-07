@@ -7,13 +7,17 @@
 	import ModelTable from '$lib/components/ModelTable/ModelTable.svelte';
 	import Anchor from '$lib/components/Anchor/Anchor.svelte';
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	const roto = data.data;
 
 	pageTitle.set(roto.risk_origin + ' - ' + roto.target_objective);
 
-	let activeActivity: string | null = null;
+	let activeActivity: string | null = $state(null);
 	$page.url.searchParams.forEach((value, key) => {
 		if (key === 'activity' && value === 'one') {
 			activeActivity = 'one';
@@ -41,14 +45,14 @@
 				label={roto.ebios_rm_study.str}
 				class="flex items-center space-x-2 text-primary-800 hover:text-primary-600"
 			>
-				<i class="fa-solid fa-arrow-left" />
+				<i class="fa-solid fa-arrow-left"></i>
 				<p class="">{m.goBackToEbiosRmStudy()}</p>
 			</Anchor>
 			<Anchor
 				href={`${$page.url.pathname}/edit?activity=${activeActivity}&next=${$page.url.pathname}?activity=${activeActivity}`}
-				class="btn variant-filled-primary h-fit"
+				class="btn preset-filled-primary-500 h-fit"
 			>
-				<i class="fa-solid fa-pen-to-square mr-2" data-testid="edit-button" />
+				<i class="fa-solid fa-pen-to-square mr-2" data-testid="edit-button"></i>
 				{m.edit()}
 			</Anchor>
 		</div>

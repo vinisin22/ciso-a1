@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
 	import { setContext, onDestroy } from 'svelte';
 
@@ -384,7 +385,7 @@
 				}}>{m.cancel()}</button
 			>
 			<button
-				class="btn variant-filled-primary font-semibold w-full"
+				class="btn preset-filled-primary-500 font-semibold w-full"
 				data-testid="save-button"
 				type="submit">{m.save()}</button
 			>
@@ -398,7 +399,7 @@
 				>
 			{/if}
 			<button
-				class="btn variant-filled-primary font-semibold w-full"
+				class="btn preset-filled-primary-500 font-semibold w-full"
 				data-testid="save-button"
 				type="submit">{m.save()}</button
 			>

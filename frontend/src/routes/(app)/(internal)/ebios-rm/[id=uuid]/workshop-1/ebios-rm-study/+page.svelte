@@ -5,8 +5,8 @@
 	import { page } from '$app/stores';
 	import CreateModal from '$lib/components/Modals/CreateModal.svelte';
 	import ModelTable from '$lib/components/ModelTable/ModelTable.svelte';
-	import type { ModalComponent, ModalSettings, ModalStore } from '@skeletonlabs/skeleton';
-	import { TabGroup, Tab, getModalStore } from '@skeletonlabs/skeleton';
+	import type { ModalComponent, ModalSettings, ModalStore, Tabs } from '@skeletonlabs/skeleton-svelte';
+	import { Tab } from '@skeletonlabs/skeleton-svelte';
 	import Anchor from '$lib/components/Anchor/Anchor.svelte';
 
 	const modalStore: ModalStore = getModalStore();
@@ -19,7 +19,11 @@
 		deprecated: 'bg-orange-300 text-orange-800'
 	};
 
-	export let data: PageData;
+	interface Props {
+		data: PageData;
+	}
+
+	let { data }: Props = $props();
 
 	const ebiosRmStudy = data.data;
 
@@ -41,7 +45,7 @@
 		modalStore.trigger(modal);
 	}
 
-	let activeActivity: string | null = null;
+	let activeActivity: string | null = $state(null);
 
 	$page.url.searchParams.forEach((value, key) => {
 		if (key === 'activity' && value === 'one') {
@@ -51,7 +55,7 @@
 		}
 	});
 
-	let tabSet = 0;
+	let tabSet = $state(0);
 </script>
 
 <div class="card p-4 bg-white shadow-lg">
@@ -61,7 +65,7 @@
 				href="/ebios-rm/{ebiosRmStudy.id}"
 				class="flex items-center space-x-2 text-primary-800 hover:text-primary-600"
 			>
-				<i class="fa-solid fa-arrow-left" />
+				<i class="fa-solid fa-arrow-left"></i>
 				<p class="">{m.goBackToEbiosRmStudy()}</p>
 			</a>
 			<div class="flex items-center space-x-2">
@@ -80,9 +84,9 @@
 			</div>
 			<Anchor
 				href={`${$page.url.pathname}/edit?activity=${activeActivity}&next=${$page.url.pathname}?activity=${activeActivity}`}
-				class="btn variant-filled-primary h-fit"
+				class="btn preset-filled-primary-500 h-fit"
 			>
-				<i class="fa-solid fa-pen-to-square mr-2" data-testid="edit-button" />
+				<i class="fa-solid fa-pen-to-square mr-2" data-testid="edit-button"></i>
 				{m.edit()}
 			</Anchor>
 		</div>
@@ -164,44 +168,48 @@
 			>
 			{#if Object.keys(data.relatedModels).length > 0}
 				<div class="card shadow-lg mt-8 bg-white w-full">
-					<TabGroup justify="justify-center">
+					<Tabs justify="justify-center">
 						{#each Object.entries(data.relatedModels) as [urlmodel, model], index}
 							<Tab bind:group={tabSet} value={index} name={`${urlmodel}_tab`}>
 								{safeTranslate(model.info.localNamePlural)}
 								{#if model.table.body.length > 0}
-									<span class="badge variant-soft-secondary">{model.table.body.length}</span>
+									<span class="badge preset-tonal-secondary">{model.table.body.length}</span>
 								{/if}
 							</Tab>
 						{/each}
-						<svelte:fragment slot="panel">
-							{#each Object.entries(data.relatedModels) as [urlmodel, model], index}
-								{#if tabSet === index}
-									<div class="flex flex-row justify-between px-4 py-2">
-										<h4 class="font-semibold lowercase capitalize-first my-auto">
-											{safeTranslate('associated-' + model.info.localNamePlural)}
-										</h4>
-									</div>
-									{#if model.table}
-										<ModelTable
-											source={model.table}
-											deleteForm={model.deleteForm}
-											URLModel={urlmodel}
-											baseEndpoint="/assets?ebios_rm_studies={$page.params.id}"
-										>
-											<button
-												slot="addButton"
-												class="btn variant-filled-primary self-end my-auto"
-												on:click={(_) => modalCreateForm(model)}
-												><i class="fa-solid fa-plus mr-2 lowercase" />{safeTranslate(
-													'add-' + model.info.localName
-												)}</button
+						{#snippet panel()}
+											
+								{#each Object.entries(data.relatedModels) as [urlmodel, model], index}
+									{#if tabSet === index}
+										<div class="flex flex-row justify-between px-4 py-2">
+											<h4 class="font-semibold lowercase capitalize-first my-auto">
+												{safeTranslate('associated-' + model.info.localNamePlural)}
+											</h4>
+										</div>
+										{#if model.table}
+											<ModelTable
+												source={model.table}
+												deleteForm={model.deleteForm}
+												URLModel={urlmodel}
+												baseEndpoint="/assets?ebios_rm_studies={$page.params.id}"
 											>
-										</ModelTable>
+												{#snippet addButton()}
+																						<button
+														
+														class="btn preset-filled-primary-500 self-end my-auto"
+														onclick={(_) => modalCreateForm(model)}
+														><i class="fa-solid fa-plus mr-2 lowercase"></i>{safeTranslate(
+															'add-' + model.info.localName
+														)}</button
+													>
+																					{/snippet}
+											</ModelTable>
+										{/if}
 									{/if}
-								{/if}
-							{/each}
-						</svelte:fragment>
-					</TabGroup>
+								{/each}
+							
+											{/snippet}
+					</Tabs>
 				</div>
 			{/if}
 		</div>

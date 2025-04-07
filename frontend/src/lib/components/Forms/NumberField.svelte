@@ -1,39 +1,58 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { formFieldProxy } from 'sveltekit-superforms';
 	import { onMount } from 'svelte';
 	import type { CacheLock } from '$lib/utils/types';
 
-	let _class = '';
-	export { _class as class };
-	export let label: string | undefined = undefined;
-	export let step: number = 1;
-	export let field: string;
-	export let helpText: string | undefined = undefined;
-	export let cachedValue: string | undefined;
-	export let cacheLock: CacheLock = {
-		promise: new Promise((res) => res(null)),
-		resolve: (x) => x
-	};
-	export let form;
-	export let hidden = false;
-	export let disabled = false;
-	export let required = false;
+	interface Props {
+		class?: string;
+		label?: string | undefined;
+		step?: number;
+		field: string;
+		helpText?: string | undefined;
+		cachedValue: string | undefined;
+		cacheLock?: CacheLock;
+		form: any;
+		hidden?: boolean;
+		disabled?: boolean;
+		required?: boolean;
+		[key: string]: any;
+	}
+
+	let {
+		class: _class = '',
+		label = $bindable(undefined),
+		step = 1,
+		field,
+		helpText = undefined,
+		cacheLock = {
+			promise: new Promise((res) => res(null)),
+			resolve: (x) => x
+		},
+		form,
+		hidden = false,
+		disabled = false,
+		required = false,
+		...rest
+	}: Props = $props();
 
 	label = label ?? field;
 	const { value, errors, constraints } = formFieldProxy(form, field);
 
-	$: cachedValue = $value;
-	$: if ($value === '') {
-		$value = null;
-	}
+	run(() => {
+		if ($value === '') {
+			$value = null;
+		}
+	});
 
 	onMount(async () => {
 		const cacheResult = await cacheLock.promise;
 		if (cacheResult) $value = cacheResult;
 	});
 
-	$: classesTextField = (errors: string[] | undefined) => (errors ? 'input-error' : '');
-	$: classesDisabled = (d: boolean) => (d ? 'opacity-50' : '');
+	let classesTextField = $derived((errors: string[] | undefined) => (errors ? 'input-error' : ''));
+	let classesDisabled = $derived((d: boolean) => (d ? 'opacity-50' : ''));
 </script>
 
 <div>
@@ -66,7 +85,7 @@
 			placeholder=""
 			bind:value={$value}
 			{...$constraints}
-			{...$$restProps}
+			{...rest}
 			{disabled}
 			{required}
 		/>

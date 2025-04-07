@@ -6,15 +6,19 @@
 
 	import { m } from '$paraglide/messages';
 
-	export let info: object[];
+	interface Props {
+		info: object[];
+	}
+
+	let { info }: Props = $props();
 
 	let showNotificationBool = JSON.parse($showNotification);
 
 	let today = new Date();
-	let month = today.getMonth() + 1;
-	let year = today.getFullYear();
-	let daysInMonth = new Date(year, month, 0).getDate();
-	let firstDay = new Date(year, month - 1, 1).getDay();
+	let month = $state(today.getMonth() + 1);
+	let year = $state(today.getFullYear());
+	let daysInMonth = $state(new Date(year, month, 0).getDate());
+	let firstDay = $state(new Date(year, month - 1, 1).getDay());
 
 	const daysOfWeek = [
 		m.monday(),
@@ -81,16 +85,16 @@
 			class="flex flex-col items-center justify-center bg-gradient-to-r from-primary-500 to-secondary-400 text-white rounded-lg h-1/6 text-3xl font-semibold p-2 shadow-md"
 		>
 			<div class="flex flex-row justify-between w-3/4">
-				<button class="sticky" on:click={prevMonth}>
-					<i class="fas fa-chevron-left" />
+				<button class="sticky" onclick={prevMonth}>
+					<i class="fas fa-chevron-left"></i>
 				</button>
 				{#key month}
 					<p in:fly={{ delay: 100, duration: 300 }}>
 						{monthNames[month - 1].toUpperCase()}, {year}
 					</p>
 				{/key}
-				<button on:click={nextMonth}>
-					<i class="fas fa-chevron-right" />
+				<button onclick={nextMonth}>
+					<i class="fas fa-chevron-right"></i>
 				</button>
 			</div>
 		</div>
@@ -104,11 +108,11 @@
 		<div class="grid grid-cols-7 gap-1 h-full">
 			{#if firstDay > 0}
 				{#each Array.from({ length: firstDay - 1 }, (_, i) => i + 1) as day}
-					<div class="" />
+					<div class=""></div>
 				{/each}
 			{:else}
 				{#each Array.from({ length: 6 }, (_, i) => i + 1) as day}
-					<div class="" />
+					<div class=""></div>
 				{/each}
 			{/if}
 			{#each Array.from({ length: daysInMonth }, (_, i) => i + 1) as day}
@@ -118,10 +122,10 @@
 		<div class="flex flex-col bg-gradient-to-r from-primary-500 to-secondary-400 rounded-lg p-2">
 			<div class="flex w-full h-full justify-between items-start">
 				<button
-					on:click={todayDay}
+					onclick={todayDay}
 					class="font-light text-lg border rounded-lg border-white p-2 hover:bg-white text-white hover:text-primary-500 transition duration-300"
 				>
-					<i class="fas fa-calendar-day" />
+					<i class="fas fa-calendar-day"></i>
 					{m.today()}
 				</button>
 				<!-- <button

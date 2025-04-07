@@ -1,10 +1,11 @@
+<!-- @migration-task Error while migrating Svelte code: This migration would change the name of a slot making the component unusable -->
 <svelte:options accessors />
 
 <script lang="ts">
 	import { getContext, createEventDispatcher, onMount } from 'svelte';
 
 	// Types
-	import type { CssClasses, SvelteEvent, TreeViewItem } from '@skeletonlabs/skeleton';
+	import type { CssClasses, SvelteEvent } from '@skeletonlabs/skeleton-svelte';
 
 	// Props (state)
 	export let group: unknown = undefined;

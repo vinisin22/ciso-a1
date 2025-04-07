@@ -1,17 +1,21 @@
 <script lang="ts">
 	// Props
-	/** Exposes parent props to this component. */
-	export let parent: any;
+	
 
 	// Stores
-	import type { ModalStore } from '@skeletonlabs/skeleton';
-	import { getModalStore } from '@skeletonlabs/skeleton';
+	import type { ModalStore } from '@skeletonlabs/skeleton-svelte';
 	import { recoveryCodes } from '../utils/stores';
 
 	import { m } from '$paraglide/messages';
 
 	import { enhance } from '$app/forms';
 	import { copy } from '@svelte-put/copy';
+	interface Props {
+		/** Exposes parent props to this component. */
+		parent: any;
+	}
+
+	let { parent }: Props = $props();
 
 	const modalStore: ModalStore = getModalStore();
 
@@ -28,7 +32,7 @@
 			<div class="flex flex-col space-y-4 mx-auto card p-4 max-w-lg">
 				<div class="flex flex-wrap justify-evenly">
 					{#each $recoveryCodes.unused_codes as code}
-						<pre>{code}&nbsp;</pre>
+						<pre>{code} </pre>
 					{/each}
 				</div>
 				<span class="flex flex-row space-x-2 justify-end">
@@ -48,7 +52,7 @@
 			</div>
 		{/if}
 		<footer class="modal-footer {parent.regionFooter}">
-			<button type="button" class="btn {parent.buttonPositive}" on:click={parent.onClose}
+			<button type="button" class="btn {parent.buttonPositive}" onclick={parent.onClose}
 				>{m.ok()}</button
 			>
 		</footer>

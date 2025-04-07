@@ -6,28 +6,7 @@
 	import * as m from '$paraglide/messages.js';
 	import { toCamelCase } from '$lib/utils/locales';
 
-	let _class = '';
-
-	export { _class as class };
-	export let label: string | undefined = undefined;
-	export let field: string;
-	export let helpText: string | undefined = undefined;
-	export let cachedValue: string | undefined = undefined;
-	export let blank: boolean = false;
-	export let disableDoubleDash: boolean = false;
-	export let cacheLock: CacheLock = {
-		promise: new Promise((res) => res(null)),
-		resolve: (x) => x
-	};
-
-	export let color_map = {};
-
-	export let form: SuperForm<AnyZodObject>;
-
-	const { value, errors, constraints } = formFieldProxy(form, field);
-	// $: value.set(cachedValue);
-	$: cachedValue = $value; // I must add an initial value.set(cachedValue) to make the cache work after that, but i firstly want to see if i can pass the test with this.
-	let selectElement: HTMLElement | null = null;
+	let selectElement: HTMLElement | null = $state(null);
 
 	onMount(async () => {
 		const cacheResult = await cacheLock.promise;
@@ -39,10 +18,44 @@
 		value: unknown;
 	}
 
-	export let options: Option[] = [];
+	interface Props {
+		class?: string;
+		label?: string | undefined;
+		field: string;
+		helpText?: string | undefined;
+		cachedValue?: string | undefined;
+		blank?: boolean;
+		disableDoubleDash?: boolean;
+		cacheLock?: CacheLock;
+		color_map?: any;
+		form: SuperForm<AnyZodObject>;
+		options?: Option[];
+		[key: string]: any;
+	}
 
-	$: classesTextField = (errors: string[] | undefined) =>
-		errors && errors.length > 0 ? 'input-error' : '';
+	let {
+		class: _class = '',
+		label = undefined,
+		field,
+		helpText = undefined,
+		cachedValue = $bindable(undefined),
+		blank = false,
+		disableDoubleDash = false,
+		cacheLock = {
+			promise: new Promise((res) => res(null)),
+			resolve: (x) => x
+		},
+		color_map = {},
+		form,
+		options = [],
+		...rest
+	}: Props = $props();
+
+	const { value, errors, constraints } = formFieldProxy(form, field);
+
+	let classesTextField = $derived((errors: string[] | undefined) =>
+		errors && errors.length > 0 ? 'input-error' : ''
+	);
 </script>
 
 <div>
@@ -73,7 +86,7 @@
 			bind:value={$value}
 			bind:this={selectElement}
 			{...$constraints}
-			{...$$restProps}
+			{...rest}
 		>
 			{#if !disableDoubleDash && !$constraints?.required && !options.find( (o) => new Set( ['--', 'undefined'] ).has(o.label.toLowerCase()) )}
 				{@const defaultValue = blank ? '' : null}

@@ -2173,6 +2173,8 @@ class UserFilter(df.FilterSet):
             "first_name",
             "last_name",
             "is_active",
+            "is_local",
+            "is_sso",
             "is_approver",
             "is_third_party",
         ]
